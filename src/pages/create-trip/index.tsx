@@ -4,6 +4,8 @@ import { InviteGuestsModal } from "./invite-guests-modal";
 import { ConfirmTripModal } from "./confirm-trip-modal";
 import { DestinationAndDateStep } from "./steps/destination-and-date-stape";
 import { InviteGuestsStep } from "./steps/invite-guests-step";
+import { DateRange } from "react-day-picker";
+import { api } from "../../lib/axios";
 
 export function CreateTripPages() {
 const navigate = useNavigate()
@@ -11,6 +13,12 @@ const navigate = useNavigate()
   const [isGuestInputOpen, setIsGuestInputOpen] = useState (false);
   const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
   const [isConfirmTripModalOpen, setIsConfirmTripModalOpen] = useState(false) 
+
+  const [destination, setDestination] = useState ('')
+  const [ownerName, setOwnerName] = useState ('')
+  const [ownerEmail, setOwnerEmail] = useState('')
+  const [eventStartAndDates, seteventStartAndDates] = useState <DateRange | undefined>()
+
 
   const [emailsToInvite, setEmailsToInvite] = useState([
     'lukinhafaustino2001@gmail.com'
@@ -40,9 +48,40 @@ const navigate = useNavigate()
     setIsConfirmTripModalOpen (false)
   }
 
-  function createTrip (event: FormEvent<HTMLFormElement>) {
+  async function createTrip (event: FormEvent<HTMLFormElement>) {
     event.preventDefault ()
-    navigate ('/trips/123')
+    console.log (destination)
+    console.log (eventStartAndDates)
+    console.log (emailsToInvite)
+    console.log (ownerEmail)
+    console.log (ownerName)
+
+    if (!destination){
+      return
+    }  
+    if (!eventStartAndDates?.from || !eventStartAndDates?.to) {
+      return
+    }
+
+    if (emailsToInvite.length === 0){
+      return
+    }
+
+    if (ownerEmail || ownerName) {
+      return
+    }
+
+    const response = await api.post ('/trips', {
+      destination,
+      starts_at: eventStartAndDates.from,
+      ends_at: eventStartAndDates.to,
+      emails_to_invite: emailsToInvite,
+      ownerName: ownerName,
+      ownerEmail: ownerEmail
+    })
+
+    const { tripId } = response.data
+    navigate (`/trips/123/${tripId}`)
   }
 
   function addNewEmailToInvite (event: FormEvent<HTMLFormElement>){
@@ -86,6 +125,9 @@ const navigate = useNavigate()
           closeGuestInput={closeGuestInput}
           isGuestInputOpen={isGuestInputOpen}
           openGuestInput={openGuestInput}
+          setDestination = {setDestination}
+          eventStartAndDates = {eventStartAndDates}
+          seteventStartAndDates = {seteventStartAndDates}
           />
 
           {isGuestInputOpen && (
@@ -119,6 +161,8 @@ const navigate = useNavigate()
             <ConfirmTripModal 
                 closeConfirmTripModal={closeConfirmTripModal}
                 createTrip={createTrip}
+                setOwnerName = {setOwnerName}
+                setOwnerEmail = {setOwnerEmail}
             />
         )}
 
