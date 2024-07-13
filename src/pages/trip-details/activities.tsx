@@ -1,7 +1,8 @@
-import { CircleCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../../lib/axios";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface Activity {
     date: string
@@ -24,7 +25,19 @@ export function Activities () {
 
     return (
         <div className="space-y-8">
-                        <div className="space-y-2.5">
+            {activities.map(activity => {
+                return (
+                    <div key={activity.date} className="space-y-2.5">
+                        <div className="flex gap-2 items-baseline">
+                            <span className="text-xl text-zinc-300 font ">Dia {format(activity.date, 'd', {locale: ptBR})}</span>
+                            <span className="text-xs text-zinc-500">{format(activity.date, 'EEEE', {locale: ptBR})}</span>
+                        </div>
+                        <p className="text-zinc-500 text-sm">Nenhuma atividade cadastrada nessa data.</p>
+                    </div>
+                )
+            })}
+
+                        {/* <div className="space-y-2.5">
                             <div className="flex gap-2 items-baseline">
                                 <span className="text-xl text-zinc-300 font ">Dia 17</span>
                                 <span className="text-xs text-zinc-500">Sábado</span>
@@ -51,7 +64,7 @@ export function Activities () {
                                     <span className="text-zinc-400 text-sm ml-auto">08:00h</span>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
     )
 }
