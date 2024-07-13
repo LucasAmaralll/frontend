@@ -1,6 +1,27 @@
 import { CircleCheck } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { api } from "../../lib/axios";
+
+interface Activity {
+    date: string
+    activities: {
+        id: string
+        title: string
+        occurs_at: string
+    }[]
+
+}
 
 export function Activities () {
+
+    const { tripId } = useParams();
+    const [activities, setActivities] = useState<Activity[]>([]);
+
+    useEffect(() => {
+        api.get(`/trips/${tripId}/activities`).then(response => setActivities(response.data.activities));
+    }, [tripId]);
+
     return (
         <div className="space-y-8">
                         <div className="space-y-2.5">
