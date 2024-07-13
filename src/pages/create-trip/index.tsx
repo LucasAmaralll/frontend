@@ -76,12 +76,12 @@ const navigate = useNavigate()
       starts_at: eventStartAndDates.from,
       ends_at: eventStartAndDates.to,
       emails_to_invite: emailsToInvite,
-      ownerName: ownerName,
-      ownerEmail: ownerEmail
+      owner_name: ownerName,
+      owner_email: ownerEmail
     })
 
     const { tripId } = response.data
-    navigate (`/trips/123/${tripId}`)
+    navigate (`/trips/${tripId}`)
   }
 
   function addNewEmailToInvite (event: FormEvent<HTMLFormElement>){
