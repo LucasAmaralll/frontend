@@ -67,7 +67,7 @@ const navigate = useNavigate()
       return
     }
 
-    if (ownerEmail || ownerName) {
+    if (!ownerEmail || !ownerName) {
       return
     }
 
