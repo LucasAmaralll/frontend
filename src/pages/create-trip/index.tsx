@@ -8,165 +8,163 @@ import { DateRange } from "react-day-picker";
 import { api } from "../../lib/axios";
 
 export function CreateTripPages() {
-const navigate = useNavigate()
-    
-  const [isGuestInputOpen, setIsGuestInputOpen] = useState (false);
-  const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
-  const [isConfirmTripModalOpen, setIsConfirmTripModalOpen] = useState(false) 
+    const navigate = useNavigate()
 
-  const [destination, setDestination] = useState ('')
-  const [ownerName, setOwnerName] = useState ('')
-  const [ownerEmail, setOwnerEmail] = useState('')
-  const [eventStartAndDates, seteventStartAndDates] = useState <DateRange | undefined>()
+    const [isGuestInputOpen, setIsGuestInputOpen] = useState(false);
+    const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
+    const [isConfirmTripModalOpen, setIsConfirmTripModalOpen] = useState(false)
 
+    const [destination, setDestination] = useState('')
+    const [ownerName, setOwnerName] = useState('')
+    const [ownerEmail, setOwnerEmail] = useState('')
+    const [eventStartAndDates, setEventStartAndDates] = useState<DateRange | undefined>()
 
-  const [emailsToInvite, setEmailsToInvite] = useState([
-    'lukinhafaustino2001@gmail.com'
-  ]);
+    const [emailsToInvite, setEmailsToInvite] = useState<string[]>([]);
 
-  function openGuestInput (){
-    setIsGuestInputOpen(true)
-  }
-
-  function closeGuestInput (){
-    setIsGuestInputOpen(false)
-  }
-
-  function openGuestModal () {
-    setIsGuestModalOpen (true)
-  }
-
-  function closeGuestModal () {
-    setIsGuestModalOpen (false)
-  }
-
-  function OpenConfirmTripModal () {
-    setIsConfirmTripModalOpen(true)
-  }
-
-  function closeConfirmTripModal () {
-    setIsConfirmTripModalOpen (false)
-  }
-
-  async function createTrip (event: FormEvent<HTMLFormElement>) {
-    event.preventDefault ()
-    console.log (destination)
-    console.log (eventStartAndDates)
-    console.log (emailsToInvite)
-    console.log (ownerEmail)
-    console.log (ownerName)
-
-    if (!destination){
-      return
-    }  
-    if (!eventStartAndDates?.from || !eventStartAndDates?.to) {
-      return
+    function openGuestInput() {
+        setIsGuestInputOpen(true)
     }
 
-    if (emailsToInvite.length === 0){
-      return
+    function closeGuestInput() {
+        setIsGuestInputOpen(false)
     }
 
-    if (!ownerEmail || !ownerName) {
-      return
+    function openGuestModal() {
+        setIsGuestModalOpen(true)
     }
 
-    const response = await api.post ('/trips', {
-      destination,
-      starts_at: eventStartAndDates.from,
-      ends_at: eventStartAndDates.to,
-      emails_to_invite: emailsToInvite,
-      owner_name: ownerName,
-      owner_email: ownerEmail
-    })
-
-    const { tripId } = response.data
-    navigate (`/trips/${tripId}`)
-  }
-
-  function addNewEmailToInvite (event: FormEvent<HTMLFormElement>){
-    event.preventDefault()
-
-    const data = new FormData(event.currentTarget)
-    const email = data.get('email')?.toString()
-
-    if (!email){
-      return
+    function closeGuestModal() {
+        setIsGuestModalOpen(false)
     }
 
-    if (emailsToInvite.includes(email)){
-      return
+    function openConfirmTripModal() {
+        setIsConfirmTripModalOpen(true)
     }
 
-    setEmailsToInvite([
-      ...emailsToInvite,
-      email
-    ])
+    function closeConfirmTripModal() {
+        setIsConfirmTripModalOpen(false)
+    }
 
-    event.currentTarget.reset()
-  }
+    async function createTrip(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        console.log(destination)
+        console.log(eventStartAndDates)
+        console.log(emailsToInvite)
+        console.log(ownerEmail)
+        console.log(ownerName)
 
-  function removeEmailFromInvites (emailToRemove:string) {
-    const newEmailList = emailsToInvite.filter(email => email != emailToRemove)
+        if (!destination) {
+            return
+        }
+        if (!eventStartAndDates?.from || !eventStartAndDates?.to) {
+            return
+        }
 
-    setEmailsToInvite(newEmailList)
-  }
+        if (emailsToInvite.length === 0) {
+            return
+        }
 
-  return (
-    <div className="h-screen flex items-center justify-center bg-pattern bg-no-repeat bg-center ">
-      <div className="max-w-3xl w-full px-6 text-center space-y-10">
-        <div className="flex flex-col items-center gap-3">
-          <img src="/logo.svg" alt ="plann.er"/>
-          <p className="text-zinc-300 text-lg">Convide seus amigos e planeje sua próxima viagem!</p>
+        if (!ownerEmail || !ownerName) {
+            return
+        }
+
+        const response = await api.post('/trips', {
+            destination,
+            starts_at: eventStartAndDates.from,
+            ends_at: eventStartAndDates.to,
+            emails_to_invite: emailsToInvite,
+            owner_name: ownerName,
+            owner_email: ownerEmail
+        })
+
+        const { tripId } = response.data
+        navigate(`/trips/${tripId}`)
+    }
+
+    function addNewEmailToInvite(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+
+        const data = new FormData(event.currentTarget)
+        const email = data.get('email')?.toString()
+
+        if (!email) {
+            return
+        }
+
+        if (emailsToInvite.includes(email)) {
+            return
+        }
+
+        setEmailsToInvite([
+            ...emailsToInvite,
+            email
+        ])
+
+        event.currentTarget.reset()
+    }
+
+    function removeEmailFromInvites(emailToRemove: string) {
+        const newEmailList = emailsToInvite.filter(email => email !== emailToRemove)
+
+        setEmailsToInvite(newEmailList)
+    }
+
+    const startDate = eventStartAndDates?.from ? new Date(eventStartAndDates.from).toLocaleDateString('pt-BR') : ''
+    const endDate = eventStartAndDates?.to ? new Date(eventStartAndDates.to).toLocaleDateString('pt-BR') : ''
+
+    return (
+        <div className="h-screen flex items-center justify-center bg-pattern bg-no-repeat bg-center ">
+            <div className="max-w-3xl w-full px-6 text-center space-y-10">
+                <div className="flex flex-col items-center gap-3">
+                    <img src="/logo.svg" alt="plann.er" />
+                    <p className="text-zinc-300 text-lg">Convide seus amigos e planeje sua próxima viagem!</p>
+                </div>
+
+                <div className="space-y-4">
+                    <DestinationAndDateStep
+                        closeGuestInput={closeGuestInput}
+                        isGuestInputOpen={isGuestInputOpen}
+                        openGuestInput={openGuestInput}
+                        setDestination={setDestination}
+                        eventStartAndDates={eventStartAndDates}
+                        seteventStartAndDates={setEventStartAndDates}
+                    />
+
+                    {isGuestInputOpen && (
+                        <InviteGuestsStep
+                            OpenConfirmTripModal={openConfirmTripModal}
+                            emailsToInvite={emailsToInvite}
+                            openGuestModal={openGuestModal}
+                        />
+                    )}
+                </div>
+
+                <p className="text-sm text-zinc-500">
+                    Ao planejar sua viagem pela plann.er você automaticamente concorda <br />
+                    com nossos <a className="text-zinc-300 underline" href="#">termos de uso</a> e <a className="text-zinc-300 underline" href="#">políticas de privacidade</a>.
+                </p>
+            </div>
+
+            {isGuestModalOpen && (
+                <InviteGuestsModal
+                    emailsToInvite={emailsToInvite}
+                    addNewEmailToInvite={addNewEmailToInvite}
+                    closeGuestModal={closeGuestModal}
+                    removeEmailFromInvites={removeEmailFromInvites}
+                />
+            )}
+
+            {isConfirmTripModalOpen && (
+                <ConfirmTripModal
+                    closeConfirmTripModal={closeConfirmTripModal}
+                    createTrip={createTrip}
+                    setOwnerName={setOwnerName}
+                    setOwnerEmail={setOwnerEmail}
+                    destination={destination}
+                    startDate={startDate}
+                    endDate={endDate}
+                />
+            )}
         </div>
-
-        <div className="space-y-4">
-          <DestinationAndDateStep
-          closeGuestInput={closeGuestInput}
-          isGuestInputOpen={isGuestInputOpen}
-          openGuestInput={openGuestInput}
-          setDestination = {setDestination}
-          eventStartAndDates = {eventStartAndDates}
-          seteventStartAndDates = {seteventStartAndDates}
-          />
-
-          {isGuestInputOpen && (
-            <InviteGuestsStep 
-            OpenConfirmTripModal={OpenConfirmTripModal}
-            emailsToInvite={emailsToInvite}
-            openGuestModal={openGuestModal}
-            />
-          )}
-        </div>
-
-
-
-        <p className="text-sm text-zinc-500">
-          Ao planejar sua viagem pela plann.er você automaticamente concorda <br />
-          com nossos <a className="text-zinc-300 underline" href="#">termos de uso</a> e <a className="text-zinc-300 underline" href="#">políticas de privacidade</a>.
-        </p>
-      </div>
-
-        {isGuestModalOpen && (
-          <InviteGuestsModal 
-          emailsToInvite={emailsToInvite}
-          addNewEmailToInvite={addNewEmailToInvite}
-          closeGuestModal={closeGuestModal}
-          removeEmailFromInvites={removeEmailFromInvites}
-
-          />
-        )}
-
-        {isConfirmTripModalOpen && (
-            <ConfirmTripModal 
-                closeConfirmTripModal={closeConfirmTripModal}
-                createTrip={createTrip}
-                setOwnerName = {setOwnerName}
-                setOwnerEmail = {setOwnerEmail}
-            />
-        )}
-
-        </div>
-  )
+    )
 }
-

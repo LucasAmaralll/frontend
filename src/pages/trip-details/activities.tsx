@@ -1,70 +1,75 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../../lib/axios";
-import { format } from "date-fns";
+import { format, parseISO, isValid } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { CircleCheck } from "lucide-react";
 
 interface Activity {
-    date: string
+    data: string
     activities: {
         id: string
         title: string
         occurs_at: string
     }[]
-
 }
 
-export function Activities () {
-
+export function Activities() {
     const { tripId } = useParams();
     const [activities, setActivities] = useState<Activity[]>([]);
 
     useEffect(() => {
-        api.get(`/trips/${tripId}/activities`).then(response => setActivities(response.data.activities));
+        api.get(`/trips/${tripId}/activities`).then(response => {
+            console.log("Received data:", response.data.activities);
+            setActivities(response.data.activities);
+        });
     }, [tripId]);
 
     return (
         <div className="space-y-8">
-            {activities.map(activity => {
+            {activities.map(category => {
+                console.log("Processing category:", category);
+                const date = category.data ? parseISO(category.data) : null;
+                const isDateValid = date && isValid(date);
+
                 return (
-                    <div key={activity.date} className="space-y-2.5">
+                    <div key={category.data || Math.random().toString()} className="space-y-2.5">
                         <div className="flex gap-2 items-baseline">
-                            <span className="text-xl text-zinc-300 font ">Dia {format(activity.date, 'd', {locale: ptBR})}</span>
-                            <span className="text-xs text-zinc-500">{format(activity.date, 'EEEE', {locale: ptBR})}</span>
+                            {isDateValid ? (
+                                <>
+                                    <span className="text-xl text-zinc-300 font">Dia {format(date, 'd', { locale: ptBR })}</span>
+                                    <span className="text-xs text-zinc-500">{format(date, 'EEEE', { locale: ptBR })}</span>
+                                </>
+                            ) : (
+                                <span className="text-xl text-red-500 font">Data inválida</span>
+                            )}
                         </div>
-                        <p className="text-zinc-500 text-sm">Nenhuma atividade cadastrada nessa data.</p>
+                        {category.activities.length > 0 ? (
+                            <div>
+                                {category.activities.map(activity => {
+                                    console.log("Processing activity:", activity);
+                                    const occursAt = activity.occurs_at ? parseISO(activity.occurs_at) : null;
+                                    const isOccursAtValid = occursAt && isValid(occursAt);
+
+                                    return (
+                                        <div key={activity.id} className="space-y-2.5">
+                                            <div className="px-4 py-2.5 bg-zinc-900 rounded-xl shadow-shape flex items-center gap-3">
+                                                <CircleCheck className="size-5 text-lime-300" />
+                                                <span className="text-zinc-100">{activity.title}</span>
+                                                <span className="text-zinc-400 text-sm ml-auto">
+                                                    {isOccursAtValid ? `${format(occursAt, 'HH:mm')}h` : 'Horário inválido'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <p className="text-zinc-500 text-sm">Nenhuma atividade cadastrada nessa data.</p>
+                        )}
                     </div>
                 )
             })}
-
-                        {/* <div className="space-y-2.5">
-                            <div className="flex gap-2 items-baseline">
-                                <span className="text-xl text-zinc-300 font ">Dia 17</span>
-                                <span className="text-xs text-zinc-500">Sábado</span>
-                            </div>
-                            <p className="text-zinc-500 text-sm">Nenhuma atividade cadastrada nessa data.</p>
-                        </div>
-
-                        <div className="space-y-2.5">
-                            <div className="flex gap-2 items-baseline">
-                                <span className="text-xl text-zinc-300 font ">Dia 18</span>
-                                <span className="text-xs text-zinc-500">Domingo</span>
-                            </div>
-                            <div className="space-y-2.5">
-                                <div className="px-4 py-2.5 bg-zinc-900 rounded-xl shadow-shape flex items-center gap-3">
-                                    <CircleCheck className="size-5 text-lime-300"/>
-                                    <span className="text-zinc-100">Academia em grupo</span>
-                                    <span className="text-zinc-400 text-sm ml-auto">08:00h</span>
-                                </div>
-                            </div>
-                            <div className="space-y-2.5">
-                                <div className="px-4 py-2.5 bg-zinc-900 rounded-xl shadow-shape flex items-center gap-3">
-                                    <CircleCheck className="size-5 text-lime-300"/>
-                                    <span className="text-zinc-100">Academia em grupo</span>
-                                    <span className="text-zinc-400 text-sm ml-auto">08:00h</span>
-                                </div>
-                            </div>
-                        </div> */}
-                    </div>
+        </div>
     )
 }
